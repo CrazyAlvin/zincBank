@@ -9,5 +9,5 @@ Feature: Login
 
   @smoke @US00-AC2
   Scenario: US00-AC2 - Valid login with correct credentials
-    When I log in with email "student01@zinc.test" and password "9pJolA7GBQec"
+    When I log in with email "student03@zinc.test" and password "3YFh7M9GNvBl"
     Then I should be successfully logged in
