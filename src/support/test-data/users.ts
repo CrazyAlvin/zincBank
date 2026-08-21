@@ -7,8 +7,8 @@
  */
 export const Users = {
   zincUser: {
-    email: "student01@zinc.test",
-    password: "9pJolA7GBQec"
+    email: "casey@zinc.test",
+    password: "Passw0rd!"
   }
 } as const;
 

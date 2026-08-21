@@ -18,8 +18,6 @@ module.exports = {
     formatOptions: {
       snippetInterface: "async-await"
     },
-    // Stop publishing results to the public Cucumber dashboard.
-    publishQuiet: true,
     // Number of times to retry a failed scenario (0 = no retry).
     retry: 0
   }

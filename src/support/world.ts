@@ -1,5 +1,12 @@
-import { setWorldConstructor, World, IWorldOptions } from "@cucumber/cucumber";
+import { setWorldConstructor, setDefaultTimeout, World, IWorldOptions } from "@cucumber/cucumber";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
+
+/**
+ * Cucumber's default step timeout is 5000ms, which is shorter than Playwright's
+ * ENV.TIMEOUT (10s) and too tight for slower CI environments. Raising it here
+ * lets Playwright's own auto-waiting (toHaveURL, waitFor, ...) govern timing.
+ */
+setDefaultTimeout(60_000);
 
 /**
  * Custom World instance.
