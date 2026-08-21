@@ -1,0 +1,92 @@
+# ZINC Bank Test Framework - CI pipeline
+# Runs the Playwright + TypeScript + Cucumber BDD suite, then generates
+# and publishes the Cucumber + Allure reports as workflow artifacts.
+
+name: ZINC BDD Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ui-tests
+    runs-on: ubuntu-latest
+
+    # OPTIONAL: configure these secrets in GitHub (Settings -> Secrets and
+    # variables -> Actions) if you later wire the framework to read credentials
+    # from the environment instead of the feature file.
+    env:
+      BASE_URL: https://zincbank.cydeo.io
+      BROWSER: chromium
+      HEADLESS: "true"
+      TIMEOUT: "10000"
+      # ZINC_TEST_EMAIL: ${{ secrets.ZINC_TEST_EMAIL }}
+      # ZINC_TEST_PASSWORD: ${{ secrets.ZINC_TEST_PASSWORD }}
+
+    steps:
+      # 1. Check out the repository
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Set up Node.js (Node 20 LTS - compatible with Cucumber 10.9.0)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # 3. Install project dependencies from the lock file (reproducible)
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Install the Playwright Chromium browser (+ system dependencies)
+      - name: Install Playwright browser
+        run: npx playwright install chromium --with-deps
+
+      # 5. Static type-check of the whole TypeScript source
+      - name: Type-check
+        run: npm run typecheck
+
+      # 6. Run the Cucumber/BDD suite
+      - name: Run Cucumber tests
+        run: npm test
+
+      # 7. Build the Allure report from the raw results
+      - name: Generate Allure report
+        run: npm run report:allure
+
+      # 8. Upload the Cucumber HTML + JSON reports (always available)
+      - name: Upload Cucumber report
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report
+          path: reports/
+          if-no-files-found: error
+
+      # 9. Upload raw Allure results for traceability
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
+          if-no-files-found: error
+
+      # 10. Upload the generated Allure HTML report
+      - name: Upload Allure report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          if-no-files-found: error
+
+      # 11. Upload failure screenshots (only present when a step fails)
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/
+          if-no-files-found: ignore
