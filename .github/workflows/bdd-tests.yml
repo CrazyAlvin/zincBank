@@ -9,6 +9,12 @@ on:
     branches: [main, master]
   pull_request:
   workflow_dispatch:
+  # Scheduled daily run at 09:00 Eastern Time.
+  # GitHub Actions cron uses UTC only and has no DST awareness. 09:00 ET
+  # maps to 13:00 UTC during DST (EDT, summer) and 14:00 UTC in winter (EST).
+  # Currently set for EDT (summer): 13:00 UTC = 09:00 ET.
+  schedule:
+    - cron: "0 13 * * *"
 
 jobs:
   test:
